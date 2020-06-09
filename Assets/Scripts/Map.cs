@@ -5,27 +5,31 @@ using UnityEngine;
 
 public class Map
 {
+    public const float MAX_HEIGHT_PIXELS = 6.5f;
+
     private Grid<MapTileGridObject> grid;
     private int revealedTiles;
     private int mines;
 
-    public Map(int width, int height, int mines, Vector3 origin) {
-        grid = new Grid<MapTileGridObject>(width, height, 0.65f, origin, (Grid<MapTileGridObject> g, int x, int y) => new MapTileGridObject(g, x, y)); ;
-        MineMap(mines);
+    public Map(int width, int height, Vector3 origin) {
+        int maxDim = System.Math.Max(width, height);
+        grid = new Grid<MapTileGridObject>(width, height, 6.5f / maxDim, origin, (Grid<MapTileGridObject> g, int x, int y) => new MapTileGridObject(g, x, y));
+        this.mines = (int)(width * height * 0.2f); //20% of cells will be mined
+        MineMap();
         revealedTiles = 0;
-        this.mines = mines;
     }
 
-    private void MineMap(int mines)
+    private void MineMap()
     {
-        while (mines > 0)
+        int cont = mines;
+        while (cont > 0)
         {
             int x = Random.Range(0, grid.Width);
             int y = Random.Range(0, grid.Height);
             if (grid.GetGridObject(x, y).TypeOfCell == MapTileGridObject.Type.Empty)
             {
                 grid.GetGridObject(x, y).TypeOfCell = MapTileGridObject.Type.Mine;
-                mines--;
+                cont--;
             }
         }
         CountMines();
@@ -39,45 +43,45 @@ public class Map
             {
                 if (grid.GetGridObject(i, j).TypeOfCell != MapTileGridObject.Type.Mine)
                 {
-                    int mines = 0;
+                    int surroundingMines = 0;
                     if (i > 0) //Has left tiles
                     {
                         if (j > 0) //Has down tiles
                         {
-                            mines += grid.GetGridObject(i - 1, j - 1).TypeOfCell == MapTileGridObject.Type.Mine ? 1 : 0;
+                            surroundingMines += grid.GetGridObject(i - 1, j - 1).TypeOfCell == MapTileGridObject.Type.Mine ? 1 : 0;
                         }
-                        mines += grid.GetGridObject(i - 1, j).TypeOfCell == MapTileGridObject.Type.Mine ? 1 : 0;
+                        surroundingMines += grid.GetGridObject(i - 1, j).TypeOfCell == MapTileGridObject.Type.Mine ? 1 : 0;
                         if (j < grid.Height - 1) //Has up tiles
                         {
-                            mines += grid.GetGridObject(i - 1, j + 1).TypeOfCell == MapTileGridObject.Type.Mine ? 1 : 0;
+                            surroundingMines += grid.GetGridObject(i - 1, j + 1).TypeOfCell == MapTileGridObject.Type.Mine ? 1 : 0;
                         }
                     }
 
                     if (j > 0) //Has down tiles
                     {
-                        mines += grid.GetGridObject(i, j - 1).TypeOfCell == MapTileGridObject.Type.Mine ? 1 : 0;
+                        surroundingMines += grid.GetGridObject(i, j - 1).TypeOfCell == MapTileGridObject.Type.Mine ? 1 : 0;
                     }
 
                     if (i < grid.Width - 1) //Has right tiles
                     {
                         if (j > 0) //Has down tiles
                         {
-                            mines += grid.GetGridObject(i + 1, j - 1).TypeOfCell == MapTileGridObject.Type.Mine ? 1 : 0;
+                            surroundingMines += grid.GetGridObject(i + 1, j - 1).TypeOfCell == MapTileGridObject.Type.Mine ? 1 : 0;
                         }
-                        mines += grid.GetGridObject(i + 1, j).TypeOfCell == MapTileGridObject.Type.Mine ? 1 : 0;
+                        surroundingMines += grid.GetGridObject(i + 1, j).TypeOfCell == MapTileGridObject.Type.Mine ? 1 : 0;
                         if (j < grid.Height - 1) //Has up tiles
                         {
-                            mines += grid.GetGridObject(i + 1, j + 1).TypeOfCell == MapTileGridObject.Type.Mine ? 1 : 0;
+                            surroundingMines += grid.GetGridObject(i + 1, j + 1).TypeOfCell == MapTileGridObject.Type.Mine ? 1 : 0;
                         }
                     }
 
                     if (j < grid.Height - 1) //Has up tiles
                     {
-                        mines += grid.GetGridObject(i, j + 1).TypeOfCell == MapTileGridObject.Type.Mine ? 1 : 0;
+                        surroundingMines += grid.GetGridObject(i, j + 1).TypeOfCell == MapTileGridObject.Type.Mine ? 1 : 0;
                     }
 
                     MapTileGridObject.Type TypeOfCell = MapTileGridObject.Type.Empty;
-                    switch (mines)
+                    switch (surroundingMines)
                     {
                         case 1:
                             TypeOfCell = MapTileGridObject.Type.Mine1;

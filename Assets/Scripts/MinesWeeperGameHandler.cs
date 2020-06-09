@@ -45,7 +45,7 @@ public class MinesWeeperGameHandler : MonoBehaviour
             covered,
         };
 
-        map = new Map(10, 10, 15, transform.position);
+        map = new Map(20, 15, transform.position);
         transform.Find("GameOverScreen").gameObject.SetActive(false);
         transform.Find("WinnerScreen").gameObject.SetActive(false);
     }
