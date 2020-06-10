@@ -1,10 +1,11 @@
 ﻿using CodeMonkey.Utils;
+using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.IO;
+using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
-using UnityEngine.Tilemaps;
-using UnityEngine.UI;
 
 public class MinesWeeperGameHandler : MonoBehaviour
 {
@@ -45,9 +46,32 @@ public class MinesWeeperGameHandler : MonoBehaviour
             covered,
         };
 
-        map = new Map(20, 15, transform.position);
+        switch (MenuScript.level)
+        {
+            case 2:
+                map = new Map(15, 20, transform.position);
+                break;
+            case 3:
+                map = new Map(30, 21, transform.position);
+                break;
+            default:
+                map = new Map(10, 10, transform.position);
+                break;
+        }
+        
         transform.Find("GameOverScreen").gameObject.SetActive(false);
         transform.Find("WinnerScreen").gameObject.SetActive(false);
+
+        TMP_Text timer = transform.Find("CanvasTimer").Find("SecondsText").GetComponent<TMP_Text>();
+        int secs = Convert.ToInt32(timer.text);
+        FunctionPeriodic.Create(() => {
+            if (transform.Find("GameOverScreen").gameObject.activeSelf || transform.Find("WinnerScreen").gameObject.activeSelf)
+            {
+                return;
+            }
+            secs++;
+            timer.text = secs+"";
+        }, 1f);
     }
 
     private void Update()
@@ -56,6 +80,9 @@ public class MinesWeeperGameHandler : MonoBehaviour
         {
             return;
         }
+
+
+
         if (Input.GetMouseButtonDown(0))
         {
             if (map.Reveal(UtilsClass.GetMouseWorldPosition()) == MapTileGridObject.Type.Mine)
@@ -70,12 +97,35 @@ public class MinesWeeperGameHandler : MonoBehaviour
         }
         else if (Input.GetMouseButtonDown(1))
         {
-            map.Flag(UtilsClass.GetMouseWorldPosition());
+            map.Flag(UtilsClass.GetMouseWorldPosition()); SaveScore();
         }
     }
 
     public void PlayAgainButtonPressed()
     {
         SceneManager.LoadScene(0); //Load the Main Scene again so the game starts from zero (Start is called)
+    }
+
+    public void SaveScore()
+    {
+        try
+        {
+            if (!Directory.Exists(@"Assets/Data"))
+            {
+                Directory.CreateDirectory(@"Assets/Data");
+            }
+
+            StreamWriter sw = new StreamWriter(@"Assets/Data/Scores" + MenuScript.level + ".txt", false);
+
+            sw.WriteLine("\n- Hola de nuevo mundo!!");
+
+            sw.WriteLine("- :D");
+
+            sw.Close();
+        }
+        catch (System.Exception e)
+        {
+            Debug.Log("Exception: " + e.Message);
+        }
     }
 }
