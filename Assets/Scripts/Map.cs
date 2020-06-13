@@ -14,7 +14,7 @@ public class Map
     public Map(int width, int height, Vector3 origin) {
         int maxDim = System.Math.Max(width, height);
         grid = new Grid<MapTileGridObject>(width, height, 6.5f / maxDim, origin, (Grid<MapTileGridObject> g, int x, int y) => new MapTileGridObject(g, x, y));
-        this.mines = (int)(width * height * 0.2f); //20% of cells will be mined
+        mines = (int)(width * height * 0.15f); //15% of cells will be mined
         MineMap();
         revealedTiles = 0;
     }

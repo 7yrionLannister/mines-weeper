@@ -23,24 +23,9 @@ public class MenuScript : MonoBehaviour
 
     public void ShowHighScores()
     {
-        string line;
-        try
-        {
-            StreamReader sr = new StreamReader(@"Assets/Data/Scores.txt");
-
-            line = "";
-
-            while ((line = sr.ReadLine()) != null)
-            {
-                Debug.Log(line);
-            }
-
-            sr.Close();
-            //Console.ReadLine();
-        }
-        catch (System.Exception e)
-        {
-            Debug.Log("Exception: " + e.Message);
-        }
+        string[][] scores = new string[3][];
+        scores[0] = MinesWeeperGameHandler.LoadScores(1);
+        scores[1] = MinesWeeperGameHandler.LoadScores(2);
+        scores[2] = MinesWeeperGameHandler.LoadScores(3);
     }
 }

@@ -28,6 +28,7 @@ public class MinesWeeperGameHandler : MonoBehaviour
     public Sprite mine8;
 
     private Map map;
+    private TMP_Text timer;
 
     private void Start()
     {
@@ -62,7 +63,7 @@ public class MinesWeeperGameHandler : MonoBehaviour
         transform.Find("GameOverScreen").gameObject.SetActive(false);
         transform.Find("WinnerScreen").gameObject.SetActive(false);
 
-        TMP_Text timer = transform.Find("CanvasTimer").Find("SecondsText").GetComponent<TMP_Text>();
+        timer = transform.Find("CanvasTimer").Find("SecondsText").GetComponent<TMP_Text>();
         int secs = Convert.ToInt32(timer.text);
         FunctionPeriodic.Create(() => {
             if (transform.Find("GameOverScreen").gameObject.activeSelf || transform.Find("WinnerScreen").gameObject.activeSelf)
@@ -93,11 +94,12 @@ public class MinesWeeperGameHandler : MonoBehaviour
             else if(map.RevealedTiles == (map.Width*map.Height - map.Mines)) {
                 //Add functionality for saving scores before prompting to play again
                 transform.Find("WinnerScreen").gameObject.SetActive(true);
+                SaveScore();
             }
         }
         else if (Input.GetMouseButtonDown(1))
         {
-            map.Flag(UtilsClass.GetMouseWorldPosition()); SaveScore();
+            map.Flag(UtilsClass.GetMouseWorldPosition());
         }
     }
 
@@ -115,17 +117,88 @@ public class MinesWeeperGameHandler : MonoBehaviour
                 Directory.CreateDirectory(@"Assets/Data");
             }
 
-            StreamWriter sw = new StreamWriter(@"Assets/Data/Scores" + MenuScript.level + ".txt", false);
-
-            sw.WriteLine("\n- Hola de nuevo mundo!!");
-
-            sw.WriteLine("- :D");
-
-            sw.Close();
+            WriteScore("NULL", Convert.ToInt32(timer.text));
         }
         catch (System.Exception e)
         {
             Debug.Log("Exception: " + e.Message);
+        }
+    }
+
+    private void WriteScore(string name, int score)
+    {
+
+        string[] scores = LoadScores(MenuScript.level);
+        ScoreComparer scoreComparer = new ScoreComparer();
+        string newScore = name + ":" + score;
+        for (int i = 0; i < scores.Length; i++)
+        {
+            if (scoreComparer.Compare(newScore, scores[i]) > 0 || scores[i] == null)
+            {
+                scores[scores.Length - 1] = newScore;
+                break;
+            }
+        }
+
+        Array.Sort(scores, scoreComparer);
+        StreamWriter sw = new StreamWriter(@"Assets/Data/Scores" + MenuScript.level + ".txt", false);
+        Debug.Log("******");
+        for (int i = 0; i < scores.Length; i++)
+        {
+            if (scores[i] != null)
+            {
+                sw.WriteLine(scores[i]);
+                Debug.Log(scores[i]);
+            }
+        }
+        sw.Close();
+    }
+
+    public static string[] LoadScores(int level)
+    {
+        string[] scores = new string[10];
+
+        try
+        {
+            string record;
+            StreamReader sr = new StreamReader(@"Assets/Data/Scores" + level + ".txt");
+
+            record = "";
+            int i = 0;
+            while ((record = sr.ReadLine()) != null && i < scores.Length)
+            {
+                scores[i] = record;
+                i++;
+            }
+
+            sr.Close();
+            //Console.ReadLine();
+        }
+        catch (Exception e)
+        {
+            Debug.Log("Exception: " + e.Message);
+        }
+
+        return scores;
+    }
+
+    public class ScoreComparer : IComparer<string>
+    { 
+        public int Compare(string x, string y)
+        {
+            int comp = 0;
+            if (x != null && y == null)
+            {
+                comp = -1;
+            }
+            else if (x == null && y != null)
+            {
+                comp = 1;
+            }
+            else if(x != null && y != null){
+                comp = Convert.ToInt32(x.Split(':')[1]) - Convert.ToInt32(y.Split(':')[1]);
+            }
+            return comp;
         }
     }
 }
