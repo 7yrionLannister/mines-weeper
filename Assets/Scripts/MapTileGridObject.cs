@@ -26,13 +26,13 @@ public class MapTileGridObject
     private bool revealed;
     private GameObject tile;
 
-    public MapTileGridObject(Grid<MapTileGridObject> grid, int x, int y)
+    public MapTileGridObject(Grid<MapTileGridObject> grid, int x, int y, Transform parent)
     {
         this.x = x;
         this.y = y;
         this.grid = grid;
         TypeOfCell = Type.Empty;
-        tile = UtilsClass.CreateWorldSprite(ToString(), MinesWeeperGameHandler.spritesArray[MinesWeeperGameHandler.COVERED_INDEX], grid.GetWorldPosition(x, y) + new Vector3(grid.CellSize, grid.CellSize) * .5f, Vector3.one, 1, Color.white);
+        tile = UtilsClass.CreateWorldSprite(parent, ToString(), MinesWeeperGameHandler.spritesArray[MinesWeeperGameHandler.COVERED_INDEX], grid.GetWorldPosition(x, y) + new Vector3(grid.CellSize, grid.CellSize) * .5f, Vector3.one, 1, Color.white);
         tile.GetComponent<SpriteRenderer>().sprite = MinesWeeperGameHandler.spritesArray[MinesWeeperGameHandler.COVERED_INDEX];
         float newScale = grid.CellSize / 0.65f;
         tile.transform.localScale = new Vector3(newScale, newScale);

@@ -6,6 +6,7 @@ using System.IO;
 using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using UnityEngine.UI;
 
 public class MinesWeeperGameHandler : MonoBehaviour
 {
@@ -29,9 +30,14 @@ public class MinesWeeperGameHandler : MonoBehaviour
 
     private Map map;
     private TMP_Text timer;
+    private ScoreComparer scoreComparer;
+
+    [SerializeField]
+    private TMP_InputField textField;
 
     private void Start()
     {
+        scoreComparer = new ScoreComparer();
         spritesArray = new Sprite[] {
             empty,
             mine1,
@@ -47,21 +53,24 @@ public class MinesWeeperGameHandler : MonoBehaviour
             covered,
         };
 
+        Transform parent = transform.Find("Map").transform;
+
         switch (MenuScript.level)
         {
             case 2:
-                map = new Map(15, 20, transform.position);
+                map = new Map(15, 20, transform.position, parent);
                 break;
             case 3:
-                map = new Map(30, 21, transform.position);
+                map = new Map(30, 21, transform.position, parent);
                 break;
             default:
-                map = new Map(10, 10, transform.position);
+                map = new Map(10, 10, transform.position, parent);
                 break;
         }
         
         transform.Find("GameOverScreen").gameObject.SetActive(false);
         transform.Find("WinnerScreen").gameObject.SetActive(false);
+        transform.Find("HighScoreAchievedScreen").gameObject.SetActive(false);
 
         timer = transform.Find("CanvasTimer").Find("SecondsText").GetComponent<TMP_Text>();
         int secs = Convert.ToInt32(timer.text);
@@ -92,9 +101,13 @@ public class MinesWeeperGameHandler : MonoBehaviour
                 transform.Find("GameOverScreen").gameObject.SetActive(true);
             }
             else if(map.RevealedTiles == (map.Width*map.Height - map.Mines)) {
-                //Add functionality for saving scores before prompting to play again
                 transform.Find("WinnerScreen").gameObject.SetActive(true);
-                SaveScore();
+                string[] scores = LoadScores(MenuScript.level);
+                if (scores[9] == null || scoreComparer.Compare("NULL:" + timer.text, scores[9]) > 0)
+                {
+                    transform.Find("Map").gameObject.SetActive(false);
+                    transform.Find("HighScoreAchievedScreen").gameObject.SetActive(true);
+                }
             }
         }
         else if (Input.GetMouseButtonDown(1))
@@ -108,28 +121,25 @@ public class MinesWeeperGameHandler : MonoBehaviour
         SceneManager.LoadScene(0); //Load the Main Scene again so the game starts from zero (Start is called)
     }
 
-    public void SaveScore()
+    public void OnEditEndedHighScore()
     {
-        try
+        Debug.Log("ostiia");
+        string playerName = textField.text;
+        if (playerName.Length == 0)
         {
-            if (!Directory.Exists(@"Assets/Data"))
-            {
-                Directory.CreateDirectory(@"Assets/Data");
-            }
-
-            WriteScore("NULL", Convert.ToInt32(timer.text));
+            playerName = "NULL";
         }
-        catch (System.Exception e)
-        {
-            Debug.Log("Exception: " + e.Message);
-        }
+        SaveScore(playerName, Convert.ToInt32(timer.text));
+        transform.Find("HighScoreAchievedScreen").gameObject.SetActive(false);
     }
 
-    private void WriteScore(string name, int score)
+    private void SaveScore(string name, int score)
     {
-
+        if (!Directory.Exists(@"Assets/Data"))
+        {
+            Directory.CreateDirectory(@"Assets/Data");
+        }
         string[] scores = LoadScores(MenuScript.level);
-        ScoreComparer scoreComparer = new ScoreComparer();
         string newScore = name + ":" + score;
         for (int i = 0; i < scores.Length; i++)
         {
@@ -172,7 +182,6 @@ public class MinesWeeperGameHandler : MonoBehaviour
             }
 
             sr.Close();
-            //Console.ReadLine();
         }
         catch (Exception e)
         {
