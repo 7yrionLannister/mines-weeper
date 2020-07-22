@@ -33,6 +33,9 @@ public class MinesWeeperGameHandler : MonoBehaviour
     private ScoreComparer scoreComparer;
 
     [SerializeField]
+    private Transform parent;
+
+    [SerializeField]
     private TMP_InputField textField;
 
     private void Start()
@@ -52,8 +55,6 @@ public class MinesWeeperGameHandler : MonoBehaviour
             flag,
             covered,
         };
-
-        Transform parent = transform.Find("Map").transform;
 
         switch (MenuScript.level)
         {
@@ -95,7 +96,7 @@ public class MinesWeeperGameHandler : MonoBehaviour
 
         if (Input.GetMouseButtonDown(0))
         {
-            if (map.Reveal(UtilsClass.GetMouseWorldPosition()) == MapTileGridObject.Type.Mine)
+            if (map.Reveal(Camera.main.ScreenToWorldPoint(Input.mousePosition)) == MapTileGridObject.Type.Mine)
             {
                 map.Uncover();
                 transform.Find("GameOverScreen").gameObject.SetActive(true);
@@ -105,7 +106,7 @@ public class MinesWeeperGameHandler : MonoBehaviour
                 string[] scores = LoadScores(MenuScript.level);
                 if (scores[9] == null || scoreComparer.Compare("NULL:" + timer.text, scores[9]) > 0)
                 {
-                    transform.Find("Map").gameObject.SetActive(false);
+                    parent.gameObject.SetActive(false);
                     transform.Find("HighScoreAchievedScreen").gameObject.SetActive(true);
                 }
             }

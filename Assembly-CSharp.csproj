@@ -83,11 +83,11 @@
     <Compile Include="Assets\CodeMonkey\Utils\World_Mesh.cs" />
     <Compile Include="Assets\CodeMonkey\Utils\World_Sprite.cs" />
     <Compile Include="Assets\Scripts\Grid.cs" />
+    <Compile Include="Assets\Scripts\HighScoreScreen.cs" />
     <Compile Include="Assets\Scripts\Map.cs" />
     <Compile Include="Assets\Scripts\MapTileGridObject.cs" />
     <Compile Include="Assets\Scripts\MenuScript.cs" />
     <Compile Include="Assets\Scripts\MinesWeeperGameHandler.cs" />
-    <Compile Include="Assets\Scripts\NewHighScore.cs" />
     <Compile Include="Assets\TextMesh Pro\Examples &amp; Extras\Scripts\Benchmark01.cs" />
     <Compile Include="Assets\TextMesh Pro\Examples &amp; Extras\Scripts\Benchmark01_UGUI.cs" />
     <Compile Include="Assets\TextMesh Pro\Examples &amp; Extras\Scripts\Benchmark02.cs" />

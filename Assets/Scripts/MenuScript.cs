@@ -9,11 +9,18 @@ using UnityEngine.UI;
 
 public class MenuScript : MonoBehaviour
 {
-    public static int level;
+    public static int level = 1;
+    [SerializeField]
+    private Canvas highScoreScreen;
+
     public void Play()
     {
-        level = GameObject.Find("LevelSelector").GetComponent<TMP_Dropdown>().value + 1;
         SceneManager.LoadScene(1);
+    }
+
+    public void OnValueChangedLevelSelector(int index)
+    {
+        level = index + 1;
     }
 
     public void Quit()
@@ -23,9 +30,7 @@ public class MenuScript : MonoBehaviour
 
     public void ShowHighScores()
     {
-        string[][] scores = new string[3][];
-        scores[0] = MinesWeeperGameHandler.LoadScores(1);
-        scores[1] = MinesWeeperGameHandler.LoadScores(2);
-        scores[2] = MinesWeeperGameHandler.LoadScores(3);
+        highScoreScreen.gameObject.SetActive(true);
+        highScoreScreen.GetComponent<HighScoreScreen>().Setup();
     }
 }
